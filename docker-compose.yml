@@ -80,6 +80,30 @@ services:
       - homepage.widget.type=radarr
       - homepage.widget.url=http://radarr:7878/radarr
       - homepage.widget.key=${RADARR_API_KEY}
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIMEZONE}
+    volumes:
+      - ./jellyseerr:/app/config
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.${HOSTNAME}`)
+      - traefik.http.routers.jellyseerr.tls=true
+      - traefik.http.routers.jellyseerr.tls.certresolver=myresolver
+      - traefik.http.services.jellyseerr.loadbalancer.server.port=5055
+      - homepage.group=Media
+      - homepage.name=JellySeerr
+      - homepage.icon=jellyseerr.png
+      - homepage.href=http://jellyseerr.${HOSTNAME}
+      - homepage.description=Content Recommendations and Request Management
+      - homepage.weight=2
+      - homepage.widget.type=jellyseerr
+      - homepage.widget.url=http://jellyseerr:5055
+      - homepage.widget.key=${JELLYSEERR_API_KEY}
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
@@ -143,8 +167,8 @@ services:
       - homepage.weight=5
       - homepage.widget.type=qbittorrent
       - homepage.widget.url=http://vpn:8080
-      - homepage.widget.username=admin
-      - homepage.widget.password=adminadmin
+      - homepage.widget.username=${QBITTORRENT_USERNAME}
+      - homepage.widget.password=${QBITTORRENT_PASSWORD}
   vpn:
     image: thrnz/docker-wireguard-pia
     container_name: vpn
